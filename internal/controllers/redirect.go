@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"net/http"
+	"net/netip"
 
 	"github.com/Francesco99975/urx/internal/cache"
 	"github.com/Francesco99975/urx/internal/database"
+	"github.com/Francesco99975/urx/internal/helpers"
 	"github.com/Francesco99975/urx/internal/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
@@ -33,7 +35,14 @@ func Redirect() echo.HandlerFunc {
 		long_url, err := cache.Client().Get(ctx, slug).Result()
 		if err == nil && long_url != "" {
 			log.Debugf("Cache hit for slug %s", slug)
-			go incrementClickBySlug(slug)
+			go func(c echo.Context, slug string) {
+				ip, err := helpers.GetClientIP(c)
+				if err == nil {
+					incrementClickBySlug(slug, ip, new(c.Request().Header.Get("User-Agent")), new(c.Request().Header.Get("Referer")))
+				} else {
+					log.Errorf("Failed to get client IP: %v", err)
+				}
+			}(c, slug)
 			return c.Redirect(http.StatusFound, long_url)
 		}
 
@@ -54,13 +63,20 @@ func Redirect() echo.HandlerFunc {
 			}
 		}(url)
 
-		go incrementClickByID(url.ID)
+		go func(c echo.Context, id int64) {
+			ip, err := helpers.GetClientIP(c)
+			if err == nil {
+				incrementClickByID(id, ip, new(c.Request().Header.Get("User-Agent")), new(c.Request().Header.Get("Referer")))
+			} else {
+				log.Errorf("Failed to get client IP: %v", err)
+			}
+		}(c, url.ID)
 
 		return c.Redirect(http.StatusFound, url.LongUrl)
 	}
 }
 
-func incrementClickBySlug(slug string) {
+func incrementClickBySlug(slug string, ip *netip.Addr, ua *string, rf *string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -72,20 +88,30 @@ func incrementClickBySlug(slug string) {
 		return
 	}
 
-	err = repo.IncrementClicks(ctx, url.ID)
+	_, err = repo.CreateClick(ctx, repository.CreateClickParams{
+		UrlID:     url.ID,
+		Ip:        ip,
+		UserAgent: ua,
+		Referer:   rf,
+	})
 	if err != nil {
-		log.Errorf("increment failed: %v", err)
+		log.Errorf("failed to create click: %v", err)
 	}
 }
 
-func incrementClickByID(id int64) {
+func incrementClickByID(id int64, ip *netip.Addr, ua *string, rf *string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	repo := repository.New(database.Pool())
 
-	err := repo.IncrementClicks(ctx, id)
+	_, err := repo.CreateClick(ctx, repository.CreateClickParams{
+		UrlID:     id,
+		Ip:        ip,
+		UserAgent: ua,
+		Referer:   rf,
+	})
 	if err != nil {
-		log.Errorf("increment failed: %v", err)
+		log.Errorf("failed to create click: %v", err)
 	}
 }
