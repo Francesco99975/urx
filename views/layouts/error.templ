@@ -1,0 +1,16 @@
+package layouts
+
+import (
+	"github.com/Francesco99975/urx/internal/config"
+	"github.com/Francesco99975/urx/views/components"
+	"strconv"
+)
+
+templ Error(site config.Site) {
+	@CoreHTML(site) {
+		<div class="min-h-screen flex flex-col">
+			{ children... }
+			@components.Footer(site.AppName, strconv.Itoa(site.Year))
+		</div>
+	}
+}

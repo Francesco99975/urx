@@ -1,0 +1,86 @@
+services:
+  urxdb:
+    container_name: urxdb
+    image: postgres:15.3-alpine
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+    networks:
+      - urxnet
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    ports:
+      - "5467:5432"
+    volumes:
+      - urxpgdata:/var/lib/postgresql/data
+      - urxpgconf:/etc/postgresql
+      - urxpglog:/var/log/postgresql
+  urxkeys:
+    image: valkey/valkey:9.0.3-alpine
+    container_name: urxkeys
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      - traefik.enable=false
+    volumes:
+      - valkey_data:/data
+    command: >
+      valkey-server
+      --appendonly yes
+      --appendfsync everysec
+      -maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+  urx:
+    container_name: urx
+    image: urx
+    restart: unless-stopped
+    environment:
+      - GO_ENV
+      - HOST
+      - PORT
+      - DSN
+      - NTFY
+      - METRICS_SECRET
+      - PROMETHEUS
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3373/healthcheck"]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.urx.rule=Host(`urx.ink`)
+      - traefik.http.routers.urx.entrypoints=web,websecure
+      - traefik.http.routers.urx.service=urx
+      - traefik.http.services.urx.loadbalancer.server.port=3373
+      - traefik.http.routers.urx.tls=true
+      - traefik.http.routers.urx.tls.certresolver=letsencrypt
+      - traefik.http.routers.urx.middlewares=websocket-headers,forwardedheaders
+    networks:
+      - urxnet
+      - proxy
+      - monitoring
+    ports:
+      - 3373:3373
+
+networks:
+  proxy:
+    external: true
+  monitoring:
+    external: true
+  urxnet:
+    driver: bridge
+    external: false
+
+volumes:
+  urxpgdata:
+    driver: local
+  urxpgconf:
+    driver: local
+  urxpglog:
+    driver: local
+  valkey_data:
+    driver: local

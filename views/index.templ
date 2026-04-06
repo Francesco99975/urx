@@ -1,0 +1,63 @@
+package views
+
+import (
+	"github.com/Francesco99975/urx/internal/config"
+
+	"github.com/Francesco99975/urx/views/components"
+	"github.com/Francesco99975/urx/views/icons"
+	"github.com/Francesco99975/urx/views/layouts"
+)
+
+templ Index(site config.Site) {
+	@layouts.Base(site) {
+		<main class="px-4 md:px-8">
+			<!-- Hero Section -->
+			<section class="max-w-4xl mx-auto pt-12 md:pt-20 pb-16 md:pb-24 text-center">
+				<!-- Floating Icon -->
+				<div class="animate-float mb-6 md:mb-8">
+					<div class="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10">
+						@icons.Link("w-8 h-8 md:w-10 md:h-10 text-primary")
+					</div>
+				</div>
+				<!-- Heading -->
+				<h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight text-balance">
+					Shorten Your Links,
+					<span class="block sm:inline text-primary">Amplify Your Reach</span>
+				</h1>
+				<p class="text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto mb-8 md:mb-12 text-pretty">
+					Transform long, ugly URLs into clean, memorable links. Track clicks, analyze traffic, and share with confidence.
+				</p>
+				<!-- URL Shortener Form -->
+				@components.ShortenerForm()
+			</section>
+			<!-- Features Section -->
+			<section class="max-w-4xl mx-auto pb-16 md:pb-24">
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+					@FeatureCard(icons.Bolt("w-5 h-5 md:w-6 md:h-6 text-primary"), "Lightning Fast", "Generate short links instantly. No delays, no waiting.")
+					@FeatureCard(icons.Chart("w-5 h-5 md:w-6 md:h-6 text-primary"), "Click Analytics", "Track every click with detailed analytics and insights.")
+					@FeatureCardWide(icons.Lock("w-5 h-5 md:w-6 md:h-6 text-primary"), "Secure & Reliable", "Enterprise-grade security. Your links never go down.")
+				</div>
+			</section>
+		</main>
+	}
+}
+
+templ FeatureCard(icon templ.Component, title string, description string) {
+	<div class="p-5 md:p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+		<div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+			@icon
+		</div>
+		<h3 class="font-semibold text-gray-900 mb-2">{ title }</h3>
+		<p class="text-sm md:text-base text-gray-600">{ description }</p>
+	</div>
+}
+
+templ FeatureCardWide(icon templ.Component, title string, description string) {
+	<div class="p-5 md:p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
+		<div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+			@icon
+		</div>
+		<h3 class="font-semibold text-gray-900 mb-2">{ title }</h3>
+		<p class="text-sm md:text-base text-gray-600">{ description }</p>
+	</div>
+}
