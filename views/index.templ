@@ -28,7 +28,7 @@ templ Index(site config.Site) {
 					Transform long, ugly URLs into clean, memorable links. Track clicks, analyze traffic, and share with confidence.
 				</p>
 				<!-- URL Shortener Form -->
-				@components.ShortenerForm()
+				@components.ShortenerForm(site.CSRF)
 			</section>
 			<!-- Features Section -->
 			<section class="max-w-4xl mx-auto pb-16 md:pb-24">

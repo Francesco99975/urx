@@ -30,7 +30,9 @@ func Index() echo.HandlerFunc {
 		data := config.GetDefaultSite(c.Request())
 
 		data.CSRF = c.Get("csrf").(string)
+		log.Debugf("CSRF: %s", data.CSRF)
 		data.Nonce = c.Get("nonce").(string)
+		log.Debugf("Nonce: %s", data.Nonce)
 
 		html := helpers.MustRenderHTML(views.Index(data))
 
