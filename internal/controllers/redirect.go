@@ -77,10 +77,18 @@ func Redirect() echo.HandlerFunc {
 }
 
 func incrementClickBySlug(slug string, ip *netip.Addr, ua *string, rf *string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	log.Infof("Incrementing click for slug %s", slug)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	repo := repository.New(database.Pool())
+	tx, err := database.Pool().BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		log.Errorf("failed to begin transaction: %v", err)
+		return
+	}
+	defer database.HandleTransaction(ctx, tx, &err)
+
+	repo := repository.New(tx)
 
 	url, err := repo.GetAndIncrementURL(ctx, slug)
 	if err != nil {
@@ -100,12 +108,20 @@ func incrementClickBySlug(slug string, ip *netip.Addr, ua *string, rf *string) {
 }
 
 func incrementClickByID(id int64, ip *netip.Addr, ua *string, rf *string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	log.Infof("Incrementing click for id %d", id)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	repo := repository.New(database.Pool())
+	tx, err := database.Pool().BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		log.Errorf("failed to begin transaction: %v", err)
+		return
+	}
+	defer database.HandleTransaction(ctx, tx, &err)
 
-	_, err := repo.CreateClick(ctx, repository.CreateClickParams{
+	repo := repository.New(tx)
+
+	_, err = repo.CreateClick(ctx, repository.CreateClickParams{
 		UrlID:     id,
 		Ip:        ip,
 		UserAgent: ua,
