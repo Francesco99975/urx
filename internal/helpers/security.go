@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"io"
 	"net"
+
+	"github.com/labstack/gommon/log"
 )
 
 func GenerateNonce() (string, error) {
@@ -25,6 +27,7 @@ func generateNonceWithReader(reader io.Reader) (string, error) {
 }
 
 func IsPrivateIP(ip net.IP) bool {
+	log.Debugf("Checking IP: %s", ip.String())
 	if ip == nil {
 		return false
 	}

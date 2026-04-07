@@ -32,7 +32,17 @@ type PageMeta struct {
 
 var pageMeta = map[string]PageMeta{
 	"/": {
-		Title:       "urx",
+		Title:       "Generate Short URLs",
+		Description: "urx is a simple and fast URL shortener.",
+		Indexable:   true,
+	},
+	"/privacy": {
+		Title:       "Privacy Policy",
+		Description: "urx is a simple and fast URL shortener.",
+		Indexable:   true,
+	},
+	"/terms": {
+		Title:       "Terms of Service",
 		Description: "urx is a simple and fast URL shortener.",
 		Indexable:   true,
 	},
@@ -98,22 +108,22 @@ func generateSitemap() []byte {
 	}
 	lastModIndex := infoIndex.ModTime()
 
-	// infoPrivacy, err := os.Stat("views/privacy.templ")
-	// if err != nil {
-	// 	return nil
-	// }
-	// lastModPrivacy := infoPrivacy.ModTime()
+	infoPrivacy, err := os.Stat("views/privacy.templ")
+	if err != nil {
+		return nil
+	}
+	lastModPrivacy := infoPrivacy.ModTime()
 
-	// infoTerms, err := os.Stat("views/terms.templ")
-	// if err != nil {
-	// 	return nil
-	// }
-	// lastModTerms := infoTerms.ModTime()
+	infoTerms, err := os.Stat("views/terms.templ")
+	if err != nil {
+		return nil
+	}
+	lastModTerms := infoTerms.ModTime()
 
 	urls := []URL{
 		{Loc: baseURL + "/", LastMod: lastModIndex.Format("2006-01-02")},
-		// {Loc: baseURL + "/privacy", LastMod: lastModPrivacy.Format("2006-01-02")},
-		// {Loc: baseURL + "/terms", LastMod: lastModTerms.Format("2006-01-02")},
+		{Loc: baseURL + "/privacy", LastMod: lastModPrivacy.Format("2006-01-02")},
+		{Loc: baseURL + "/terms", LastMod: lastModTerms.Format("2006-01-02")},
 	}
 
 	sitemap := URLSet{
@@ -168,7 +178,7 @@ func GetDefaultSite(r *http.Request) Site {
 			Name:         "urx",
 			Url:          boot.Environment.URL,
 			Logo:         fmt.Sprintf("%s/assets/images/pwa-512x512.png", boot.Environment.URL),
-			ContactPoint: []ContactPoint{{Type: "Person", Telephone: "+1-202-555-0144", ContactType: "customer service"}},
+			ContactPoint: []ContactPoint{{Type: "Person", Telephone: "", ContactType: "customer service"}},
 		},
 		Sitemap:      generateSitemap(),
 		Styles:       meta.ExtraStyles,

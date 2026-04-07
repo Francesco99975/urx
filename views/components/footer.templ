@@ -7,6 +7,11 @@ templ Footer(appName, year string) {
 				<p class="text-sm text-std/70 dark:text-std/60 transition-colors duration-300">
 					&copy; { year } <span class="font-semibold text-std/90 dark:text-std/80">{ appName }</span>. All rights reserved.
 				</p>
+				<div class="flex items-center gap-4 text-sm" hx-boost="true">
+					<a href="/privacy" class="text-std/60 hover:text-std transition-colors duration-200">Privacy</a>
+					<span class="text-std/30">|</span>
+					<a href="/terms" class="text-std/60 hover:text-std transition-colors duration-200">Terms</a>
+				</div>
 				<div class="w-16 h-px bg-linear-to-r from-transparent via-accent/50 to-transparent"></div>
 			</div>
 		</div>

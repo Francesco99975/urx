@@ -119,7 +119,14 @@ func validateURL(input string) (string, error) {
 
 	host := u.Hostname()
 
+	log.Debugf("Validating host: %s", host)
+
+	if host == "localhost" {
+		return "", errors.New("localhost not allowed")
+	}
+
 	ip := net.ParseIP(host)
+	log.Debugf("Parsed IP: %s", ip)
 	if ip != nil && helpers.IsPrivateIP(ip) {
 		return "", errors.New("private IP not allowed")
 	}

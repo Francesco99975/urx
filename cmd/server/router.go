@@ -123,6 +123,8 @@ Sitemap: %s/sitemap.xml
 	}))
 
 	web.GET("/", controllers.Index())
+	web.GET("/privacy", controllers.PrivacyPolicy())
+	web.GET("/terms", controllers.TermsOfService())
 	web.POST("/shorten", controllers.Shorten())
 	web.GET("/:slug", controllers.Redirect())
 
