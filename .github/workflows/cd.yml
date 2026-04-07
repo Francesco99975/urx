@@ -78,10 +78,10 @@ jobs:
       - name: Deploy to production # If using doppler, Remember to run: doppler setup on the prod server
         run: |
           # Transfer files to production server
-          scp urx.tar docker-compose.yml user@server:~/apps/urx/
+          scp urx.tar docker-compose.yml kalairen@avalon:~/apps/urx/
 
           # SSH into server and deploy
-          ssh user@avalon << 'EOF'
+          ssh kalairen@avalon << 'EOF'
             cd ~/apps/urx
             pwd
             docker load < urx.tar
