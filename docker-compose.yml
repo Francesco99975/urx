@@ -17,7 +17,7 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DB
     ports:
-      - "5468:5432"
+      - "5469:5432"
     volumes:
       - urxpgdata:/var/lib/postgresql/data
       - urxpgconf:/etc/postgresql
@@ -33,6 +33,8 @@ services:
       retries: 3
     labels:
       - traefik.enable=false
+    networks:
+      - urxnet
     volumes:
       - valkey_data:/data
     command: >
