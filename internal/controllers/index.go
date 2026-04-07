@@ -50,7 +50,7 @@ func Shorten() echo.HandlerFunc {
 		}
 
 		hash := sha256.Sum256([]byte(validatedUrl))
-		var long_url_hash []byte = hash[:]
+		long_url_hash := hash[:]
 
 		ctx := c.Request().Context()
 

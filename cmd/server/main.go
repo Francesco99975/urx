@@ -29,6 +29,8 @@ func main() {
 		addr = "localhost:6379"
 	} else if boot.Environment.GoEnv == enums.Environments.PRODUCTION {
 		addr = "urxkeys:6379"
+	} else {
+		panic("Unknown environment")
 	}
 
 	cache.InitCache(addr)

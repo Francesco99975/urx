@@ -16,7 +16,12 @@ func getLocalIP() string {
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 	return localAddr.IP.String()
