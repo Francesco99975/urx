@@ -34,12 +34,15 @@ services:
       valkey-server
       --appendonly yes
       --appendfsync everysec
-      -maxmemory 256mb
+      --maxmemory 256mb
       --maxmemory-policy allkeys-lru
   urx:
     container_name: urx
     image: urx
     restart: unless-stopped
+    depends_on:
+      - urxdb
+      - urxkeys
     environment:
       - GO_ENV
       - HOST
