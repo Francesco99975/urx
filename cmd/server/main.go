@@ -25,11 +25,15 @@ func main() {
 	}
 
 	var addr string
-	if boot.Environment.GoEnv == enums.Environments.DEVELOPMENT {
+
+	switch boot.Environment.GoEnv {
+	case enums.Environments.DEVELOPMENT:
 		addr = "localhost:6379"
-	} else if boot.Environment.GoEnv == enums.Environments.PRODUCTION {
+
+	case enums.Environments.PRODUCTION:
 		addr = "urxkeys:6379"
-	} else {
+
+	default:
 		panic("Unknown environment")
 	}
 
