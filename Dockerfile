@@ -36,7 +36,7 @@ WORKDIR /go/src/app
 # Prepare Go modules
 RUN go mod tidy
 
-RUN GOOS=linux go build -ldflags="-s -w" -o ./bin/gosot ./cmd/server/*.go
+RUN GOOS=linux go build -ldflags="-s -w" -o ./bin/urx ./cmd/server/*.go
 
 # -----------------------------
 # Release Phase
@@ -51,6 +51,6 @@ COPY --from=build /go/src/app/bin /go/bin
 COPY --from=build /go/src/app/static /go/bin/static
 COPY --from=build /go/src/app/sql /go/bin/sql
 
-EXPOSE 3388
+EXPOSE 3373
 
-ENTRYPOINT ["/go/bin/gosot", "--port", "3388"]
+ENTRYPOINT ["/go/bin/urx", "--port", "3373"]
