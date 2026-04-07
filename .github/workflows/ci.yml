@@ -25,7 +25,7 @@ jobs:
           cache: true
 
       - name: Install templ
-        run: go install github.com/a-h/templ/cmd/templ@0.3.857
+        run: go install github.com/a-h/templ/cmd/templ@latest
 
       - name: Generate templ files
         run: templ generate
