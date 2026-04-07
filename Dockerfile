@@ -25,7 +25,7 @@ RUN npm run build
 # -----------------------------
 WORKDIR /go/src/app/views
 
-RUN go install github.com/a-h/templ/cmd/templ@0.3.857
+RUN go install github.com/a-h/templ/cmd/templ@latest
 RUN templ generate
 
 # -----------------------------
