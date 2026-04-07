@@ -11,9 +11,6 @@ WORKDIR /go/src/app
 # Copy everything for build
 COPY . .
 
-# Prepare Go modules
-RUN go mod tidy
-
 
 # -----------------------------
 # Client Build
@@ -35,6 +32,9 @@ RUN templ generate
 # Go Build
 # -----------------------------
 WORKDIR /go/src/app
+
+# Prepare Go modules
+RUN go mod tidy
 
 RUN GOOS=linux go build -ldflags="-s -w" -o ./bin/gosot ./cmd/server/*.go
 
