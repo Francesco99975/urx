@@ -27,13 +27,13 @@ jobs:
         run: make build
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: urx-image
           path: urx.tar
           retention-days: 1
       - name: Upload docker-compose file
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: docker-compose
           path: docker-compose.yml
@@ -49,12 +49,12 @@ jobs:
       url: https://urx.ink
     steps:
       - name: Download Docker image
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: urx-image
 
       - name: Download docker-compose
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: docker-compose
 
@@ -66,7 +66,7 @@ jobs:
           tags: tag:ci  # Adjust this tag as needed for your Tailnet ACLs
 
       - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
 
