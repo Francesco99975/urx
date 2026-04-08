@@ -11,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/Francesco99975/urx/cmd/boot"
+	"github.com/Francesco99975/urx/internal/api"
 	"github.com/Francesco99975/urx/internal/config"
 	"github.com/Francesco99975/urx/internal/enums"
 	"github.com/Francesco99975/urx/internal/helpers"
@@ -127,6 +128,11 @@ Sitemap: %s/sitemap.xml
 	web.GET("/terms", controllers.TermsOfService())
 	web.POST("/shorten", controllers.Shorten())
 	web.GET("/:slug", controllers.Redirect())
+
+	apigrp := e.Group("/api")
+
+	apiv1 := apigrp.Group("/v1")
+	apiv1.POST("/shorten/:url", api.Shorten())
 
 	e.HTTPErrorHandler = serverErrorHandler
 

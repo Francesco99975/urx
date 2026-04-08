@@ -70,7 +70,6 @@ services:
       - traefik.http.services.urx.loadbalancer.server.port=3373
       - traefik.http.routers.urx.tls=true
       - traefik.http.routers.urx.tls.certresolver=letsencrypt
-      - traefik.http.routers.urx.middlewares=websocket-headers,forwardedheaders
     networks:
       - urxnet
       - proxy
