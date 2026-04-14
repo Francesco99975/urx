@@ -2,7 +2,10 @@ package controllers
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
+	"net"
+	"strings"
 	"time"
 
 	"net/http"
@@ -10,11 +13,13 @@ import (
 
 	"github.com/Francesco99975/urx/internal/cache"
 	"github.com/Francesco99975/urx/internal/database"
+	"github.com/Francesco99975/urx/internal/geo"
 	"github.com/Francesco99975/urx/internal/helpers"
 	"github.com/Francesco99975/urx/internal/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"github.com/mileusna/useragent"
 )
 
 func Redirect() echo.HandlerFunc {
@@ -76,6 +81,29 @@ func Redirect() echo.HandlerFunc {
 	}
 }
 
+func getUaBrowser(ua string) string {
+	parsedUa := useragent.Parse(ua)
+
+	var browser string
+	if parsedUa.IsChrome() {
+		browser = "chrome"
+	} else if parsedUa.IsFirefox() {
+		browser = "firefox"
+	} else if parsedUa.IsSafari() {
+		browser = "safari"
+	} else if parsedUa.IsEdge() {
+		browser = "edge"
+	} else if parsedUa.IsInternetExplorer() {
+		browser = "ie"
+	} else if parsedUa.IsOpera() {
+		browser = "opera"
+	} else {
+		browser = "unknown"
+	}
+
+	return browser
+}
+
 func incrementClickBySlug(slug string, ip *netip.Addr, ua *string, rf *string) {
 	log.Infof("Incrementing click for slug %s", slug)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -96,11 +124,40 @@ func incrementClickBySlug(slug string, ip *netip.Addr, ua *string, rf *string) {
 		return
 	}
 
+	hash := sha256.Sum256([]byte(ip.String()))
+	ip_hash := hash[:]
+
+	parsedUa := useragent.Parse(*ua)
+
+	var countryCode *string
+	ipg := net.ParseIP(ip.String())
+	if ipg != nil {
+		country, err := geo.GeoDB.Country(ipg)
+		if err != nil {
+			log.Warnf("failed to get country: %v", err)
+		}
+
+		if country != nil && country.Country.GeoNameID != 0 {
+			countryCode = &country.Country.IsoCode
+			log.Debugf("Country: %v", country.Country)
+		} else {
+			log.Warnf("failed to get country: %v", err)
+		}
+	} else {
+		log.Warnf("failed to parse IP: %s", ip.String())
+	}
+
 	_, err = repo.CreateClick(ctx, repository.CreateClickParams{
 		UrlID:     url.ID,
 		Ip:        ip,
+		IpHash:    ip_hash,
 		UserAgent: ua,
+		Device:    new(strings.ToLower(parsedUa.Device)),
+		Os:        new(strings.ToLower(parsedUa.OS)),
+		Browser:   new(getUaBrowser(*ua)),
+		IsBot:     &parsedUa.Bot,
 		Referer:   rf,
+		Country:   countryCode,
 	})
 	if err != nil {
 		log.Errorf("failed to create click: %v", err)
@@ -121,11 +178,35 @@ func incrementClickByID(id int64, ip *netip.Addr, ua *string, rf *string) {
 
 	repo := repository.New(tx)
 
+	hash := sha256.Sum256([]byte(ip.String()))
+	ip_hash := hash[:]
+
+	parsedUa := useragent.Parse(*ua)
+
+	var countryCode *string
+	ipg := net.ParseIP(ip.String())
+	if ipg != nil {
+		country, err := geo.GeoDB.Country(ipg)
+		if err != nil {
+			log.Warnf("failed to get country: %v", err)
+		}
+
+		if country != nil {
+			countryCode = &country.Country.IsoCode
+		}
+	}
+
 	_, err = repo.CreateClick(ctx, repository.CreateClickParams{
 		UrlID:     id,
 		Ip:        ip,
+		IpHash:    ip_hash,
 		UserAgent: ua,
+		Device:    new(parsedUa.Device),
+		Os:        new(parsedUa.OS),
+		Browser:   new(getUaBrowser(*ua)),
+		IsBot:     &parsedUa.Bot,
 		Referer:   rf,
+		Country:   countryCode,
 	})
 	if err != nil {
 		log.Errorf("failed to create click: %v", err)

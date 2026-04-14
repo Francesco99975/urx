@@ -13,19 +13,28 @@ import (
 type Querier interface {
 	CountClicksByURL(ctx context.Context, urlID int64) (int64, error)
 	CountClicksPerIP(ctx context.Context, arg CountClicksPerIPParams) ([]*CountClicksPerIPRow, error)
+	CountUserLinks(ctx context.Context, userID pgtype.UUID) (int64, error)
 	CreateClick(ctx context.Context, arg CreateClickParams) (*UrlClick, error)
 	CreateURL(ctx context.Context, arg CreateURLParams) (*Url, error)
 	DeactivateURL(ctx context.Context, id int64) error
 	DeleteClicksBefore(ctx context.Context, createdAt pgtype.Timestamptz) error
 	GetActiveURLByCode(ctx context.Context, code string) (*GetActiveURLByCodeRow, error)
 	GetAndIncrementURL(ctx context.Context, code string) (*GetAndIncrementURLRow, error)
+	GetBrowserBreakdown(ctx context.Context, userID pgtype.UUID) ([]*GetBrowserBreakdownRow, error)
 	GetClicksByURL(ctx context.Context, arg GetClicksByURLParams) ([]*GetClicksByURLRow, error)
 	GetCodeByHash(ctx context.Context, longUrlHash []byte) (string, error)
+	GetDeviceBreakdown(ctx context.Context, userID pgtype.UUID) ([]*GetDeviceBreakdownRow, error)
 	GetLongURLByHash(ctx context.Context, longUrlHash []byte) (string, error)
+	GetRecentUserClicks(ctx context.Context, userID pgtype.UUID) ([]*GetRecentUserClicksRow, error)
+	GetTopReferrers(ctx context.Context, userID pgtype.UUID) ([]*GetTopReferrersRow, error)
+	GetTopUserURLs(ctx context.Context, userID pgtype.UUID) ([]*GetTopUserURLsRow, error)
 	GetURLByCode(ctx context.Context, code string) (*GetURLByCodeRow, error)
 	GetURLByID(ctx context.Context, id int64) (*Url, error)
 	GetURLsByUser(ctx context.Context, userID pgtype.UUID) ([]*GetURLsByUserRow, error)
 	IncrementClicks(ctx context.Context, id int64) error
+	SumUserClicks(ctx context.Context, userID pgtype.UUID) (interface{}, error)
+	SumUserClicksLast7Days(ctx context.Context, userID pgtype.UUID) (int64, error)
+	SumUserClicksToday(ctx context.Context, userID pgtype.UUID) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)

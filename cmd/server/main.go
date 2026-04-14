@@ -12,6 +12,7 @@ import (
 	"github.com/Francesco99975/urx/internal/cache"
 	"github.com/Francesco99975/urx/internal/config"
 	"github.com/Francesco99975/urx/internal/enums"
+	"github.com/Francesco99975/urx/internal/geo"
 
 	"github.com/Francesco99975/urx/internal/database"
 
@@ -42,6 +43,8 @@ func main() {
 	if err := config.LoadManifest("./static"); err != nil {
 		log.Fatalf("Failed to load Vite manifest: %v", err)
 	}
+
+	geo.InitGeo("./internal/geoip/GeoLite2-Country.mmdb")
 
 	// Create a root ctx and a CancelFunc which can be used to cancel retentionMap goroutine
 	rootCtx := context.Background()

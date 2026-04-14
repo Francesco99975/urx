@@ -65,6 +65,11 @@ type UrlClick struct {
 	UserAgent *string            `json:"user_agent"`
 	Referer   *string            `json:"referer"`
 	Country   *string            `json:"country"`
+	IpHash    []byte             `json:"ip_hash"`
+	Device    *string            `json:"device"`
+	Os        *string            `json:"os"`
+	Browser   *string            `json:"browser"`
+	IsBot     *bool              `json:"is_bot"`
 }
 
 type User struct {

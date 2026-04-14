@@ -64,25 +64,50 @@ func (q *Queries) CountClicksPerIP(ctx context.Context, arg CountClicksPerIPPara
 	return items, nil
 }
 
+const countUserLinks = `-- name: CountUserLinks :one
+SELECT COUNT(*)
+FROM urls
+WHERE user_id = $1
+`
+
+func (q *Queries) CountUserLinks(ctx context.Context, userID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserLinks, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createClick = `-- name: CreateClick :one
-INSERT INTO url_clicks (url_id, ip, user_agent, referer)
-VALUES ($1, $2, $3, $4)
-RETURNING id, url_id, created_at, ip, user_agent, referer, country
+INSERT INTO url_clicks (url_id, ip, ip_hash, user_agent, device, os, browser, referer, country, is_bot)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, url_id, created_at, ip, user_agent, referer, country, ip_hash, device, os, browser, is_bot
 `
 
 type CreateClickParams struct {
 	UrlID     int64       `json:"url_id"`
 	Ip        *netip.Addr `json:"ip"`
+	IpHash    []byte      `json:"ip_hash"`
 	UserAgent *string     `json:"user_agent"`
+	Device    *string     `json:"device"`
+	Os        *string     `json:"os"`
+	Browser   *string     `json:"browser"`
 	Referer   *string     `json:"referer"`
+	Country   *string     `json:"country"`
+	IsBot     *bool       `json:"is_bot"`
 }
 
 func (q *Queries) CreateClick(ctx context.Context, arg CreateClickParams) (*UrlClick, error) {
 	row := q.db.QueryRow(ctx, createClick,
 		arg.UrlID,
 		arg.Ip,
+		arg.IpHash,
 		arg.UserAgent,
+		arg.Device,
+		arg.Os,
+		arg.Browser,
 		arg.Referer,
+		arg.Country,
+		arg.IsBot,
 	)
 	var i UrlClick
 	err := row.Scan(
@@ -93,6 +118,11 @@ func (q *Queries) CreateClick(ctx context.Context, arg CreateClickParams) (*UrlC
 		&i.UserAgent,
 		&i.Referer,
 		&i.Country,
+		&i.IpHash,
+		&i.Device,
+		&i.Os,
+		&i.Browser,
+		&i.IsBot,
 	)
 	return &i, err
 }
@@ -107,8 +137,44 @@ func (q *Queries) DeleteClicksBefore(ctx context.Context, createdAt pgtype.Times
 	return err
 }
 
+const getBrowserBreakdown = `-- name: GetBrowserBreakdown :many
+SELECT
+    browser,
+    COUNT(*) AS clicks
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id = $1
+GROUP BY browser
+ORDER BY clicks DESC
+`
+
+type GetBrowserBreakdownRow struct {
+	Browser *string `json:"browser"`
+	Clicks  int64   `json:"clicks"`
+}
+
+func (q *Queries) GetBrowserBreakdown(ctx context.Context, userID pgtype.UUID) ([]*GetBrowserBreakdownRow, error) {
+	rows, err := q.db.Query(ctx, getBrowserBreakdown, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetBrowserBreakdownRow
+	for rows.Next() {
+		var i GetBrowserBreakdownRow
+		if err := rows.Scan(&i.Browser, &i.Clicks); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getClicksByURL = `-- name: GetClicksByURL :many
-SELECT id, ip, user_agent, referer, created_at
+SELECT id, ip, user_agent, device, os, browser, referer, country, created_at
 FROM url_clicks
 WHERE url_id = $1
 ORDER BY created_at DESC
@@ -125,7 +191,11 @@ type GetClicksByURLRow struct {
 	ID        int64              `json:"id"`
 	Ip        *netip.Addr        `json:"ip"`
 	UserAgent *string            `json:"user_agent"`
+	Device    *string            `json:"device"`
+	Os        *string            `json:"os"`
+	Browser   *string            `json:"browser"`
 	Referer   *string            `json:"referer"`
+	Country   *string            `json:"country"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
@@ -142,7 +212,11 @@ func (q *Queries) GetClicksByURL(ctx context.Context, arg GetClicksByURLParams) 
 			&i.ID,
 			&i.Ip,
 			&i.UserAgent,
+			&i.Device,
+			&i.Os,
+			&i.Browser,
 			&i.Referer,
+			&i.Country,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -153,4 +227,238 @@ func (q *Queries) GetClicksByURL(ctx context.Context, arg GetClicksByURLParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const getDeviceBreakdown = `-- name: GetDeviceBreakdown :many
+SELECT
+    device,
+    COUNT(*) AS clicks
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id = $1
+GROUP BY device
+ORDER BY clicks DESC
+`
+
+type GetDeviceBreakdownRow struct {
+	Device *string `json:"device"`
+	Clicks int64   `json:"clicks"`
+}
+
+func (q *Queries) GetDeviceBreakdown(ctx context.Context, userID pgtype.UUID) ([]*GetDeviceBreakdownRow, error) {
+	rows, err := q.db.Query(ctx, getDeviceBreakdown, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetDeviceBreakdownRow
+	for rows.Next() {
+		var i GetDeviceBreakdownRow
+		if err := rows.Scan(&i.Device, &i.Clicks); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRecentUserClicks = `-- name: GetRecentUserClicks :many
+SELECT
+    uc.created_at,
+    u.code,
+    uc.user_agent,
+    COALESCE(NULLIF(uc.referer, ''), 'Direct') AS referer
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id = $1
+ORDER BY uc.created_at DESC
+LIMIT 20
+`
+
+type GetRecentUserClicksRow struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Code      string             `json:"code"`
+	UserAgent *string            `json:"user_agent"`
+	Referer   interface{}        `json:"referer"`
+}
+
+func (q *Queries) GetRecentUserClicks(ctx context.Context, userID pgtype.UUID) ([]*GetRecentUserClicksRow, error) {
+	rows, err := q.db.Query(ctx, getRecentUserClicks, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetRecentUserClicksRow
+	for rows.Next() {
+		var i GetRecentUserClicksRow
+		if err := rows.Scan(
+			&i.CreatedAt,
+			&i.Code,
+			&i.UserAgent,
+			&i.Referer,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTopReferrers = `-- name: GetTopReferrers :many
+SELECT
+    COALESCE(NULLIF(uc.referer, ''), 'Direct') AS referer,
+    COUNT(*) AS clicks
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id = $1
+GROUP BY referer
+ORDER BY clicks DESC
+LIMIT 5
+`
+
+type GetTopReferrersRow struct {
+	Referer interface{} `json:"referer"`
+	Clicks  int64       `json:"clicks"`
+}
+
+func (q *Queries) GetTopReferrers(ctx context.Context, userID pgtype.UUID) ([]*GetTopReferrersRow, error) {
+	rows, err := q.db.Query(ctx, getTopReferrers, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetTopReferrersRow
+	for rows.Next() {
+		var i GetTopReferrersRow
+		if err := rows.Scan(&i.Referer, &i.Clicks); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTopUserURLs = `-- name: GetTopUserURLs :many
+WITH current_week AS (
+    SELECT
+        uc.url_id,
+        COUNT(*) AS clicks
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id = $1
+      AND uc.created_at >= now() - interval '7 days'
+    GROUP BY uc.url_id
+),
+previous_week AS (
+    SELECT
+        uc.url_id,
+        COUNT(*) AS clicks
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id = $1
+      AND uc.created_at >= now() - interval '14 days'
+      AND uc.created_at < now() - interval '7 days'
+    GROUP BY uc.url_id
+)
+SELECT
+    u.id,
+    u.code,
+    u.long_url,
+    u.clicks AS total_clicks,
+    COALESCE(cw.clicks, 0) AS week_clicks,
+    COALESCE(pw.clicks, 0) AS prev_week_clicks
+FROM urls u
+LEFT JOIN current_week cw ON cw.url_id = u.id
+LEFT JOIN previous_week pw ON pw.url_id = u.id
+WHERE u.user_id = $1
+ORDER BY u.clicks DESC
+LIMIT 5
+`
+
+type GetTopUserURLsRow struct {
+	ID             int64  `json:"id"`
+	Code           string `json:"code"`
+	LongUrl        string `json:"long_url"`
+	TotalClicks    int64  `json:"total_clicks"`
+	WeekClicks     int64  `json:"week_clicks"`
+	PrevWeekClicks int64  `json:"prev_week_clicks"`
+}
+
+func (q *Queries) GetTopUserURLs(ctx context.Context, userID pgtype.UUID) ([]*GetTopUserURLsRow, error) {
+	rows, err := q.db.Query(ctx, getTopUserURLs, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetTopUserURLsRow
+	for rows.Next() {
+		var i GetTopUserURLsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Code,
+			&i.LongUrl,
+			&i.TotalClicks,
+			&i.WeekClicks,
+			&i.PrevWeekClicks,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const sumUserClicks = `-- name: SumUserClicks :one
+SELECT COALESCE(SUM(clicks), 0)
+FROM urls
+WHERE user_id = $1
+`
+
+func (q *Queries) SumUserClicks(ctx context.Context, userID pgtype.UUID) (interface{}, error) {
+	row := q.db.QueryRow(ctx, sumUserClicks, userID)
+	var coalesce interface{}
+	err := row.Scan(&coalesce)
+	return coalesce, err
+}
+
+const sumUserClicksLast7Days = `-- name: SumUserClicksLast7Days :one
+SELECT COUNT(*)
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id = $1
+  AND uc.created_at >= now() - interval '7 days'
+`
+
+func (q *Queries) SumUserClicksLast7Days(ctx context.Context, userID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, sumUserClicksLast7Days, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const sumUserClicksToday = `-- name: SumUserClicksToday :one
+SELECT COUNT(*)
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id = $1
+  AND uc.created_at >= date_trunc('day', now())
+`
+
+func (q *Queries) SumUserClicksToday(ctx context.Context, userID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, sumUserClicksToday, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
