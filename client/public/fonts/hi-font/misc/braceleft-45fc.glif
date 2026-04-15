@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="braceleft" format="1">
+  <advance width="355"/>
+  <unicode hex="007B"/>
+  <outline>
+    <contour>
+      <point x="329.897" y="614.075" type="line"/>
+      <point x="345.761" y="614.075"/>
+      <point x="357.239" y="597.928"/>
+      <point x="354.302" y="577.028" type="curve" smooth="yes"/>
+      <point x="351.364" y="556.128"/>
+      <point x="335.347" y="539.979"/>
+      <point x="319.483" y="539.979" type="curve" smooth="yes"/>
+      <point x="201.548" y="539.979"/>
+      <point x="220.334" y="332.098"/>
+      <point x="217.2" y="309.795" type="curve" smooth="yes"/>
+      <point x="213.466" y="283.223"/>
+      <point x="136.848" y="79.6113"/>
+      <point x="254.783" y="79.6113" type="curve" smooth="yes"/>
+      <point x="270.646" y="79.6113"/>
+      <point x="281.973" y="62.376"/>
+      <point x="278.838" y="40.0693" type="curve" smooth="yes"/>
+      <point x="275.702" y="17.7637"/>
+      <point x="259.532" y="0.527344"/>
+      <point x="243.669" y="0.527344" type="curve"/>
+      <point x="243.571" y="-0.168945" type="line"/>
+      <point x="99.3945" y="-0.168945"/>
+      <point x="105.438" y="104.375"/>
+      <point x="125.137" y="243.261" type="curve"/>
+      <point x="110.514" y="263.29"/>
+      <point x="94.9248" y="284.65"/>
+      <point x="94.8945" y="284.725" type="curve" smooth="yes"/>
+      <point x="87.8047" y="287.646"/>
+      <point x="82.8623" y="298.726"/>
+      <point x="84.417" y="309.787" type="curve" smooth="yes"/>
+      <point x="85.9717" y="320.849"/>
+      <point x="94.1523" y="331.928"/>
+      <point x="102.206" y="334.85" type="curve" smooth="yes"/>
+      <point x="102.259" y="334.924"/>
+      <point x="124.205" y="356.282"/>
+      <point x="144.791" y="376.311" type="curve"/>
+      <point x="164.012" y="512.714"/>
+      <point x="188.438" y="614.771"/>
+      <point x="329.995" y="614.771" type="curve"/>
+    </contour>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.fontlab.hintData</key>
+      <dict>
+        <key>hhints</key>
+        <array>
+          <dict>
+            <key>position</key>
+            <integer>0</integer>
+            <key>width</key>
+            <integer>80</integer>
+          </dict>
+          <dict>
+            <key>position</key>
+            <integer>614</integer>
+            <key>width</key>
+            <integer>1</integer>
+          </dict>
+        </array>
+        <key>vhints</key>
+        <array>
+          <dict>
+            <key>position</key>
+            <integer>84</integer>
+            <key>width</key>
+            <integer>270</integer>
+          </dict>
+        </array>
+      </dict>
+    </dict>
+  </lib>
+</glyph>

@@ -1,0 +1,11 @@
+﻿Fontlog for Hi. by Cannot Into Space Fonts.
+
+Version 1.994.5: Initial Design, Not Released. Design of Most Characters finalized.
+
+Version 1.995: Finalized Design and First Release with 2 Weights, Regular, and Oblique.
+
+Version 1.996: A few characters were added, along with 4 Weights, Bold, Black, Bold Oblique and Black Oblique.
+
+Version 1.996 Release 2: New Weights (Outline, Outline Oblique, Perspective, Tall, Tall Oblique), FontForge SFD and Unified Font Object (UFO) Source Files Added. Some only have SFD Sources due to snafus with the generation attempts on UFO files in FontForge.
+
+Contributors: Mew Too, & Robert Jablonski.

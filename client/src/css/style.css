@@ -3,42 +3,98 @@
 @source "../../src/**/*.{js,ts}";
 @source "../../../views/**/*.templ";
 
-@theme {
-  --color-std: oklch(96.5% 0.005 240.5);
-  --color-primary: oklch(54.8% 0.223 218.5);
-  --color-accent: oklch(74.5% 0.243 173.2);
+@font-face {
+  font-family: "TL";
+  src: url("/fonts/type-light-sans-font/TypeLightSans-KV84p.otf") format("opentype");
+  font-weight: 400;     /* Regular */
+  font-style: normal;
+  font-display: swap;   /* Recommended: prevents invisible text */
+}
 
-  --color-success: oklch(64.2% 0.249 156.8);
-  --color-error: oklch(59.8% 0.282 25.3);
-  --color-warning: oklch(70.1% 0.254 45.2);
-  --color-info: oklch(67.9% 0.202 215.4);
+/* Hi Font Family */
+@font-face {
+  font-family: "Hi";
+  src: url("/fonts/hi-font/HiRegular-Mmrw.otf") format("opentype");
+  font-weight: 400;     /* Regular */
+  font-style: normal;
+  font-display: swap;   /* Recommended: prevents invisible text */
+}
+
+@font-face {
+  font-family: "Hi";
+  src: url("/fonts/hi-font/HiBold-Rewo.otf") format("opentype");
+  font-weight: 700;     /* Bold */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Hi";
+  src: url("/fonts/hi-font/HiBlack-n3a1.otf") format("opentype");
+  font-weight: 900;     /* Black */
+  font-style: normal;
+}
+
+/* Oblique / Italic variants */
+@font-face {
+  font-family: "Hi";
+  src: url("/fonts/hi-font/HiRegularOblique-Kw8A.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Hi";
+  src: url("/fonts/hi-font/HiBoldOblique-B933.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* Add more as needed (HiTall, HiOutline, etc.) */
+@font-face {
+  font-family: "Hi";
+  src: url("/fonts/hi-font/HiTall-2YGl.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@theme {
+  /* Light mode defaults */
+  --color-std: oklch(98% 0.005 240);     /* Very light neutral background/surface */
+  --color-primary: oklch(52% 0.22 218);   /* Vibrant blue */
+  --color-accent: oklch(72% 0.24 173);    /* Fresh teal/cyan */
+  --color-success: oklch(62% 0.25 155);   /* Clear green */
+  --color-error: oklch(58% 0.28 25);      /* Strong red-orange */
+  --color-warning: oklch(68% 0.25 45);    /* Warm amber */
+  --color-info: oklch(65% 0.20 215);      /* Sky blue */
 }
 
 /* Base layer for global and dark mode setup */
 @layer base {
   html {
     scroll-behavior: smooth;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "TL", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     transition: background-color 0.3s ease;
     color-scheme: light; /* ensures system UI respects light mode */
+  }
+
+  header {
+    font-family: "Hi", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;;
   }
 
   html.dark {
     color-scheme: dark; /* ensures system UI respects dark mode */
   }
 
-  .dark {
-    /* Dark theme overrides */
-    --color-std: oklch(32.1% 0.045 230.5);
-    --color-primary: oklch(74.2% 0.223 218.5);
-    --color-accent: oklch(84.3% 0.243 173.2);
-
-    --color-success: oklch(83.5% 0.249 156.8);
-    --color-error: oklch(78.2% 0.282 25.3);
-    --color-warning: oklch(80.5% 0.254 45.2);
-    --color-info: oklch(87.1% 0.202 215.4);
-  }
-
+ .dark {
+  /* Dark mode overrides */
+  --color-std: oklch(18% 0.02 240);       /* Soft dark neutral (easier on eyes than pure black) */
+  --color-primary: oklch(78% 0.22 218);   /* Lighter, brighter blue for dark bg */
+  --color-accent: oklch(82% 0.24 173);    /* Brighter teal */
+  --color-success: oklch(80% 0.25 155);   /* Bright green */
+  --color-error: oklch(76% 0.28 25);      /* Bright red */
+  --color-warning: oklch(82% 0.25 45);    /* Bright amber */
+  --color-info: oklch(82% 0.20 215);      /* Bright info blue */
+}
   [x-cloak] {
     display: none !important;
   }

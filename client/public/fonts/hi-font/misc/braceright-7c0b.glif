@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="braceright" format="1">
+  <advance width="356"/>
+  <unicode hex="007D"/>
+  <outline>
+    <contour>
+      <point x="203.618" y="614.075" type="curve"/>
+      <point x="203.717" y="614.769" type="line"/>
+      <point x="345.275" y="614.769"/>
+      <point x="341.015" y="512.711"/>
+      <point x="321.895" y="376.308" type="curve"/>
+      <point x="336.85" y="356.279"/>
+      <point x="352.792" y="334.921"/>
+      <point x="352.823" y="334.847" type="curve" smooth="yes"/>
+      <point x="360.057" y="331.925"/>
+      <point x="365.123" y="320.846"/>
+      <point x="363.568" y="309.784" type="curve" smooth="yes"/>
+      <point x="362.014" y="298.723"/>
+      <point x="353.957" y="287.644"/>
+      <point x="346.046" y="284.722" type="curve" smooth="yes"/>
+      <point x="345.995" y="284.647"/>
+      <point x="324.402" y="263.287"/>
+      <point x="304.15" y="243.258" type="curve"/>
+      <point x="284.811" y="104.372"/>
+      <point x="261.469" y="-0.171875"/>
+      <point x="117.291" y="-0.171875" type="curve"/>
+      <point x="117.389" y="0.524414" type="line"/>
+      <point x="101.525" y="0.524414"/>
+      <point x="90.0479" y="16.6748"/>
+      <point x="92.9844" y="37.5742" type="curve" smooth="yes"/>
+      <point x="95.9219" y="58.4746"/>
+      <point x="111.939" y="74.624"/>
+      <point x="127.803" y="74.624" type="curve" smooth="yes"/>
+      <point x="245.738" y="74.624"/>
+      <point x="226.353" y="278.235"/>
+      <point x="230.087" y="304.808" type="curve" smooth="yes"/>
+      <point x="233.222" y="327.11"/>
+      <point x="310.439" y="534.991"/>
+      <point x="192.504" y="534.991" type="curve" smooth="yes"/>
+      <point x="176.641" y="534.991"/>
+      <point x="165.314" y="552.227"/>
+      <point x="168.449" y="574.533" type="curve" smooth="yes"/>
+      <point x="171.584" y="596.839"/>
+      <point x="187.755" y="614.075"/>
+    </contour>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.fontlab.hintData</key>
+      <dict>
+        <key>hhints</key>
+        <array>
+          <dict>
+            <key>position</key>
+            <integer>0</integer>
+            <key>width</key>
+            <integer>1</integer>
+          </dict>
+          <dict>
+            <key>position</key>
+            <integer>535</integer>
+            <key>width</key>
+            <integer>79</integer>
+          </dict>
+        </array>
+        <key>vhints</key>
+        <array>
+          <dict>
+            <key>position</key>
+            <integer>93</integer>
+            <key>width</key>
+            <integer>271</integer>
+          </dict>
+        </array>
+      </dict>
+    </dict>
+  </lib>
+</glyph>

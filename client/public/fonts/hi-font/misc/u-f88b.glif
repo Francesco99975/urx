@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="u" format="1">
+  <advance width="720"/>
+  <unicode hex="0075"/>
+  <outline>
+    <contour>
+      <point x="749.495" y="594.987" type="curve" smooth="yes"/>
+      <point x="749.495" y="594.987"/>
+      <point x="734.093" y="480.241"/>
+      <point x="710.089" y="309.444" type="curve" smooth="yes"/>
+      <point x="686.085" y="138.647"/>
+      <point x="530.692" y="0.000976562"/>
+      <point x="363.721" y="0.000976562" type="curve" smooth="yes"/>
+      <point x="196.749" y="0.000976562"/>
+      <point x="80.3271" y="138.647"/>
+      <point x="104.331" y="309.444" type="curve" smooth="yes"/>
+      <point x="128.335" y="480.241"/>
+      <point x="145.184" y="594.987"/>
+      <point x="145.184" y="594.987" type="curve" smooth="yes"/>
+      <point x="147.413" y="610.851"/>
+      <point x="165.495" y="624.599"/>
+      <point x="186.395" y="624.599" type="curve" smooth="yes"/>
+      <point x="207.295" y="624.599"/>
+      <point x="221.495" y="610.729"/>
+      <point x="219.246" y="594.725" type="curve" smooth="yes"/>
+      <point x="219.246" y="594.725"/>
+      <point x="195.457" y="425.641"/>
+      <point x="178.734" y="306.658" type="curve" smooth="yes"/>
+      <point x="162.013" y="187.677"/>
+      <point x="249.572" y="82.4688"/>
+      <point x="375.31" y="82.4688" type="curve" smooth="yes"/>
+      <point x="501.047" y="82.4688"/>
+      <point x="618.179" y="187.677"/>
+      <point x="634.9" y="306.658" type="curve" smooth="yes"/>
+      <point x="651.623" y="425.641"/>
+      <point x="675.358" y="594.725"/>
+      <point x="675.358" y="594.725" type="curve" smooth="yes"/>
+      <point x="677.607" y="610.729"/>
+      <point x="695.706" y="624.599"/>
+      <point x="716.606" y="624.599" type="curve" smooth="yes"/>
+      <point x="737.506" y="624.599"/>
+      <point x="751.725" y="610.851"/>
+    </contour>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.fontlab.hintData</key>
+      <dict>
+        <key>hhints</key>
+        <array>
+          <dict>
+            <key>position</key>
+            <integer>0</integer>
+            <key>width</key>
+            <integer>82</integer>
+          </dict>
+          <dict>
+            <key>position</key>
+            <integer>595</integer>
+            <key>width</key>
+            <integer>30</integer>
+          </dict>
+        </array>
+      </dict>
+    </dict>
+  </lib>
+</glyph>

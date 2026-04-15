@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name=".notdef" format="1">
+  <advance width="540"/>
+  <outline>
+    <contour>
+      <point x="65.0381" y="0" type="line"/>
+      <point x="144.725" y="567" type="line"/>
+      <point x="561.983" y="567" type="line"/>
+      <point x="482.297" y="0" type="line"/>
+    </contour>
+    <contour>
+      <point x="122.065" y="50" type="line"/>
+      <point x="439.324" y="50" type="line"/>
+      <point x="504.956" y="517" type="line"/>
+      <point x="187.697" y="517" type="line"/>
+    </contour>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.fontlab.hintData</key>
+      <dict>
+        <key>hhints</key>
+        <array>
+          <dict>
+            <key>position</key>
+            <integer>0</integer>
+            <key>width</key>
+            <integer>50</integer>
+          </dict>
+          <dict>
+            <key>position</key>
+            <integer>517</integer>
+            <key>width</key>
+            <integer>50</integer>
+          </dict>
+        </array>
+      </dict>
+    </dict>
+  </lib>
+</glyph>
