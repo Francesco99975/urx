@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Francesco99975/urx/cmd/boot"
 	"github.com/Francesco99975/urx/internal/config"
@@ -13,6 +12,7 @@ import (
 	"github.com/Francesco99975/urx/internal/helpers"
 	"github.com/Francesco99975/urx/internal/repository"
 	"github.com/Francesco99975/urx/views"
+	"github.com/dustin/go-humanize"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -201,7 +201,7 @@ func Stats() echo.HandlerFunc {
 			}
 
 			activities = append(activities, views.ActivityItem{
-				Time:     time.Since(activity.CreatedAt.Time).String(),
+				Time:     humanize.Time(activity.CreatedAt.Time),
 				ShortURL: fmt.Sprintf("%s/%s", boot.Environment.URL, activity.Code),
 				StatsURL: "",
 				Device:   device,

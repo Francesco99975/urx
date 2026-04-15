@@ -21,8 +21,39 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26.1'
+          go-version: '1.26.2'
           cache: true
+
+      - name: Get week number
+        id: week
+        run: echo "week=$(date +%Y-%U)" >> $GITHUB_OUTPUT
+
+      - name: Cache GeoIP DB
+        id: geoip-cache
+        uses: actions/cache@v4
+        with:
+          path: internal/geoip/GeoLite2-Country.mmdb
+          key: geoip-${{ runner.os }}-${{ steps.week.outputs.week }}
+          restore-keys: |
+            geoip-${{ runner.os }}-
+
+      - name: Download GeoIP database
+        if: steps.geoip-cache.outputs.cache-hit != 'true'
+        env:
+          MAXMIND_LICENSE_KEY: ${{ secrets.MAXMIND_LICENSE_KEY }}
+        run: |
+          mkdir -p internal/geoip
+          cd internal/geoip
+
+          curl -L -o GeoLite2.tar.gz \
+          "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=$MAXMIND_LICENSE_KEY&suffix=tar.gz"
+
+          tar -xzf GeoLite2.tar.gz
+          mv GeoLite2-Country_*/GeoLite2-Country.mmdb .
+
+          rm -rf GeoLite2-Country_* GeoLite2.tar.gz
+
+          echo "GeoIP database downloaded successfully. Size: $(du -h GeoLite2-Country.mmdb)"
 
       - name: Install templ
         run: go install github.com/a-h/templ/cmd/templ@latest

@@ -6,7 +6,7 @@ A fast, minimal URL shortener built with Go and Echo.
 
 - ⚡ High-performance Go backend
 - 🔗 Short link generation
-- 📊 Click tracking (WIP)
+- 📊 Click tracking
 - 🔐 CSRF + security headers
 - 🌐 Clean and minimal UI
 
