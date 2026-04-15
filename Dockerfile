@@ -4,7 +4,7 @@
 FROM golang:1.26.2-alpine3.22 AS build
 
 # Install all tools needed for client + Go + templ
-RUN apk --no-cache add gcc g++ make git nodejs npm bash
+RUN apk --no-cache add gcc g++ make git nodejs npm bash wget
 
 WORKDIR /go/src/app
 
@@ -27,6 +27,25 @@ WORKDIR /go/src/app/views
 
 RUN go install github.com/a-h/templ/cmd/templ@latest
 RUN templ generate
+
+# -----------------------------
+# GeoIP Download
+# -----------------------------
+ARG MAXMIND_LICENSE_KEY
+
+RUN mkdir -p /go/src/app/internal/geoip && \
+    cd /go/src/app/internal/geoip && \
+    if [ -n "$MAXMIND_LICENSE_KEY" ]; then \
+        echo "Downloading GeoIP database..." && \
+        wget -q -O GeoLite2.tar.gz \
+        "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=${MAXMIND_LICENSE_KEY}&suffix=tar.gz" && \
+        tar -xzf GeoLite2.tar.gz && \
+        mv GeoLite2-Country_*/GeoLite2-Country.mmdb . && \
+        rm -rf GeoLite2-Country_* GeoLite2.tar.gz && \
+        echo "GeoIP DB installed"; \
+    else \
+        echo "No MAXMIND_LICENSE_KEY provided, skipping GeoIP download"; \
+    fi
 
 # -----------------------------
 # Go Build

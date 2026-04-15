@@ -24,6 +24,8 @@ jobs:
           trivy --version
 
       - name: Build Docker image
+        env:
+          MAXMIND_LICENSE_KEY: ${{ secrets.MAXMIND_LICENSE_KEY }}
         run: make build
 
       - name: Upload artifact
