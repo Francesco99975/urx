@@ -44,7 +44,12 @@ func main() {
 		log.Fatalf("Failed to load Vite manifest: %v", err)
 	}
 
-	geo.InitGeo("./internal/geoip/GeoLite2-Country.mmdb")
+	geoPath := "./internal/geoip/GeoLite2-Country.mmdb"
+	if boot.Environment.GoEnv == enums.Environments.PRODUCTION {
+		geoPath = "./geoip/GeoLite2-Country.mmdb"
+	}
+
+	geo.InitGeo(geoPath)
 
 	// Create a root ctx and a CancelFunc which can be used to cancel retentionMap goroutine
 	rootCtx := context.Background()

@@ -35,6 +35,11 @@ var pageMeta = map[string]PageMeta{
 		Description: "urx is a simple and fast URL shortener.",
 		Indexable:   true,
 	},
+	"/stats": {
+		Title:       "Statistics",
+		Description: "urx is a simple and fast URL shortener.",
+		Indexable:   true,
+	},
 	"/privacy": {
 		Title:       "Privacy Policy",
 		Description: "urx is a simple and fast URL shortener.",

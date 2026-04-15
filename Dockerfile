@@ -50,6 +50,7 @@ WORKDIR /go/bin
 COPY --from=build /go/src/app/bin /go/bin
 COPY --from=build /go/src/app/static /go/bin/static
 COPY --from=build /go/src/app/sql /go/bin/sql
+COPY --from=build /go/src/app/internal/geoip /go/bin/geoip
 
 EXPOSE 3373
 
