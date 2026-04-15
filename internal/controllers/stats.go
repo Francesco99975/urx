@@ -81,6 +81,10 @@ func Stats() echo.HandlerFunc {
 		var topLinks []views.TopLink
 
 		for i, link := range publicGlobalVisitedUrls {
+			if link.TotalClicks == 0 {
+				continue
+			}
+
 			trend := link.WeekClicks / link.TotalClicks * 100
 			var trendClass string
 			var sign string
