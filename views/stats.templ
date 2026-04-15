@@ -1,0 +1,200 @@
+package views
+
+import (
+	"github.com/Francesco99975/urx/internal/config"
+	"github.com/Francesco99975/urx/views/components"
+	"github.com/Francesco99975/urx/views/icons"
+	"github.com/Francesco99975/urx/views/layouts"
+)
+
+type DashboardStats struct {
+	TotalLinks   string
+	TotalClicks  string
+	WeeklyChange string
+	ClicksToday  string
+}
+
+type TopLink struct {
+	Rank        int
+	ShortURL    string
+	OriginalURL string
+	StatsURL    string
+	Clicks      string
+	Trend       string
+	TrendClass  string
+}
+
+type ReferrerStat struct {
+	Name     string
+	Count    string
+	Percent  int
+	Letter   string
+	BgClass  string
+	TxtClass string
+	IsGlobe  bool
+}
+
+type DeviceStat struct {
+	Name       string
+	Percent    string
+	PercentInt int
+	DeviceType string // "mobile", "desktop", "tablet"
+}
+
+type BrowserStat struct {
+	Label string
+}
+
+type ActivityItem struct {
+	Time     string
+	ShortURL string
+	StatsURL string
+	Device   string
+	Referrer string
+	IsDirect bool
+}
+
+type StatsPageData struct {
+	Stats      DashboardStats
+	TopLinks   []TopLink
+	Referrers  []ReferrerStat
+	Devices    []DeviceStat
+	Browsers   []BrowserStat
+	Activities []ActivityItem
+}
+
+templ StatsPage(site config.Site, data StatsPageData) {
+	@layouts.Base(site) {
+		<main class="px-4 md:px-8 py-8 md:py-12">
+			<div class="max-w-6xl mx-auto">
+				<!-- Header -->
+				<div class="mb-6 md:mb-8">
+					<h1 class="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
+					<p class="text-gray-500 mt-1">Overview of all your shortened links</p>
+				</div>
+				<!-- Stats Cards -->
+				<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+					@components.StatsCard(data.Stats.TotalLinks, "Total Links", "bg-primary/10") {
+						@icons.Link("w-4 h-4 md:w-5 md:h-5 text-primary")
+					}
+					@components.StatsCard(data.Stats.TotalClicks, "Total Clicks", "bg-accent/20") {
+						@icons.Cursor("w-4 h-4 md:w-5 md:h-5 text-accent")
+					}
+					@components.StatsCard(data.Stats.WeeklyChange, "vs Last Week", "bg-success/20") {
+						@icons.TrendUp("w-4 h-4 md:w-5 md:h-5 text-success")
+					}
+					@components.StatsCard(data.Stats.ClicksToday, "Clicks Today", "bg-info/20") {
+						@icons.Clock("w-4 h-4 md:w-5 md:h-5 text-info")
+					}
+				</div>
+				<!-- Top 5 URLs -->
+				<div class="bg-white rounded-xl border border-gray-100 p-4 md:p-6 mb-6 md:mb-8">
+					<h2 class="font-semibold text-gray-900 mb-4">Top Performing Links</h2>
+					<div class="space-y-3">
+						for _, link := range data.TopLinks {
+							@components.TopLinkItem(link.Rank, link.ShortURL, link.OriginalURL, link.StatsURL, link.Clicks, link.Trend, link.TrendClass)
+						}
+					</div>
+				</div>
+				<!-- Two Column: Referrers & Devices -->
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+					<!-- Top Referrers -->
+					<div class="bg-white rounded-xl border border-gray-100 p-4 md:p-6">
+						<h2 class="font-semibold text-gray-900 mb-4">Top Referrers</h2>
+						<div class="space-y-3">
+							for _, ref := range data.Referrers {
+								@ReferrerRow(ref)
+							}
+						</div>
+					</div>
+					<!-- Devices & Browsers -->
+					<div class="bg-white rounded-xl border border-gray-100 p-4 md:p-6">
+						<h2 class="font-semibold text-gray-900 mb-4">Devices & Browsers</h2>
+						<div class="space-y-3">
+							for _, dev := range data.Devices {
+								@DeviceRow(dev)
+							}
+							<div class="border-t border-gray-100 pt-3 mt-3">
+								<p class="text-xs text-gray-400 uppercase tracking-wide mb-2">Top Browsers</p>
+								<div class="flex flex-wrap gap-2">
+									for _, browser := range data.Browsers {
+										@components.BrowserChip(browser.Label)
+									}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Recent Activity -->
+				<div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+					<div class="p-4 md:p-6 border-b border-gray-100">
+						<h2 class="font-semibold text-gray-900">Recent Activity</h2>
+					</div>
+					<!-- Mobile Card View -->
+					<div class="md:hidden divide-y divide-gray-100">
+						for _, activity := range data.Activities {
+							@components.ActivityCard(activity.Time, activity.ShortURL, activity.Device, activity.Referrer, activity.IsDirect)
+						}
+					</div>
+					<!-- Desktop Table -->
+					<div class="hidden md:block overflow-x-auto">
+						<table class="w-full">
+							<thead class="bg-gray-50">
+								<tr>
+									<th class="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-6 py-3">Time</th>
+									<th class="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-6 py-3">Link</th>
+									<th class="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-6 py-3">Device</th>
+									<th class="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-6 py-3">Referrer</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-gray-100">
+								for _, activity := range data.Activities {
+									@components.ActivityTableRow(activity.Time, activity.ShortURL, activity.StatsURL, activity.Device, activity.Referrer, activity.IsDirect)
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	}
+}
+
+// Helper component for referrer rows with icon logic
+templ ReferrerRow(ref ReferrerStat) {
+	<div class="flex items-center gap-3">
+		if ref.IsGlobe {
+			<div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+				@icons.Globe("w-4 h-4 text-gray-500")
+			</div>
+		} else {
+			@components.ReferrerBadge(ref.Letter, ref.BgClass, ref.TxtClass)
+		}
+		<div class="flex-1 min-w-0">
+			<p class="text-sm font-medium text-gray-900 truncate">{ ref.Name }</p>
+			@components.ProgressBar(ref.Percent, "bg-primary")
+		</div>
+		<span class="text-sm font-semibold text-gray-700 shrink-0">{ ref.Count }</span>
+	</div>
+}
+
+// Helper component for device rows with icon logic
+templ DeviceRow(dev DeviceStat) {
+	<div class="flex items-center gap-3">
+		<div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+			switch dev.DeviceType {
+				case "mobile":
+					@icons.Mobile("w-4 h-4 text-gray-600")
+				case "desktop":
+					@icons.Desktop("w-4 h-4 text-gray-600")
+				case "tablet":
+					@icons.Tablet("w-4 h-4 text-gray-600")
+			}
+		</div>
+		<div class="flex-1 min-w-0">
+			<p class="text-sm font-medium text-gray-900">{ dev.Name }</p>
+			@components.ProgressBar(dev.PercentInt, "bg-accent")
+		</div>
+		<span class="text-sm font-semibold text-gray-700 shrink-0">{ dev.Percent }</span>
+	</div>
+}

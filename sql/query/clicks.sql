@@ -14,9 +14,12 @@ FROM urls
 WHERE user_id = $1;
 
 -- name: SumUserClicks :one
-SELECT COALESCE(SUM(clicks), 0)
-FROM urls
-WHERE user_id = $1;
+SELECT COALESCE(total, 0) AS total_clicks
+FROM (
+    SELECT SUM(clicks) AS total
+    FROM urls
+    WHERE user_id = $1
+) t;
 
 -- name: SumUserClicksToday :one
 SELECT COUNT(*)
@@ -85,12 +88,17 @@ LIMIT 5;
 
 -- name: GetTopReferrers :many
 SELECT
-    COALESCE(NULLIF(uc.referer, ''), 'Direct') AS referer,
-    COUNT(*) AS clicks
-FROM url_clicks uc
-JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id = $1
-GROUP BY referer
+    referer,
+    clicks
+FROM (
+    SELECT
+        COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer,
+        COUNT(*)::BIGINT AS clicks
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id = $1
+    GROUP BY 1
+) t
 ORDER BY clicks DESC
 LIMIT 5;
 
@@ -116,16 +124,182 @@ ORDER BY clicks DESC;
 
 -- name: GetRecentUserClicks :many
 SELECT
-    uc.created_at,
-    u.code,
-    uc.user_agent,
-    COALESCE(NULLIF(uc.referer, ''), 'Direct') AS referer
-FROM url_clicks uc
-JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id = $1
-ORDER BY uc.created_at DESC
+    created_at,
+    code,
+    browser,
+    os,
+    referer
+FROM (
+    SELECT
+        uc.created_at,
+        u.code,
+        uc.browser,
+        uc.os,
+        COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id = $1
+) t
+ORDER BY created_at DESC
 LIMIT 20;
 
 -- name: DeleteClicksBefore :exec
 DELETE FROM url_clicks
 WHERE created_at < $1;
+
+
+-- name: CountPublicClicksByURL :one
+SELECT COUNT(*) AS total
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE uc.url_id = $1
+  AND u.user_id IS NULL;
+
+-- name: CountPublicLinks :one
+SELECT COUNT(*)
+FROM urls
+WHERE user_id IS NULL;
+
+-- name: SumPublicClicks :one
+SELECT COALESCE(total, 0) AS total_clicks
+FROM (
+    SELECT SUM(clicks) AS total
+    FROM urls
+    WHERE user_id IS NULL
+) t;
+
+
+-- name: SumPublicClicksToday :one
+SELECT COUNT(*)
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id IS NULL
+  AND uc.created_at >= date_trunc('day', now());
+
+-- name: SumPublicClicksLast7Days :one
+SELECT COUNT(*)
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id IS NULL
+  AND uc.created_at >= now() - interval '7 days';
+
+-- name: GetPublicClicksByURL :many
+SELECT
+    uc.id,
+    uc.ip,
+    uc.user_agent,
+    uc.device,
+    uc.os,
+    uc.browser,
+    uc.referer,
+    uc.country,
+    uc.created_at
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE uc.url_id = $1
+  AND u.user_id IS NULL
+ORDER BY uc.created_at DESC
+LIMIT $2 OFFSET $3;
+
+-- name: CountPublicClicksPerIP :many
+SELECT uc.ip, COUNT(*) AS total
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE uc.url_id = $1
+  AND u.user_id IS NULL
+GROUP BY uc.ip
+ORDER BY total DESC
+LIMIT $2;
+
+-- name: GetTopPublicURLs :many
+WITH current_week AS (
+    SELECT
+        uc.url_id,
+        COUNT(*) AS clicks
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id IS NULL
+      AND uc.created_at >= now() - interval '7 days'
+    GROUP BY uc.url_id
+),
+previous_week AS (
+    SELECT
+        uc.url_id,
+        COUNT(*) AS clicks
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id IS NULL
+      AND uc.created_at >= now() - interval '14 days'
+      AND uc.created_at < now() - interval '7 days'
+    GROUP BY uc.url_id
+)
+SELECT
+    u.id,
+    u.code,
+    u.long_url,
+    u.clicks AS total_clicks,
+    COALESCE(cw.clicks, 0) AS week_clicks,
+    COALESCE(pw.clicks, 0) AS prev_week_clicks
+FROM urls u
+LEFT JOIN current_week cw ON cw.url_id = u.id
+LEFT JOIN previous_week pw ON pw.url_id = u.id
+WHERE u.user_id IS NULL
+ORDER BY u.clicks DESC
+LIMIT 5;
+
+-- name: GetTopPublicReferrers :many
+SELECT
+    referer,
+    clicks
+FROM (
+    SELECT
+        COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer,
+        COUNT(*)::BIGINT AS clicks
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id IS NULL
+    GROUP BY 1
+) t
+ORDER BY clicks DESC
+LIMIT 5;
+
+-- name: GetPublicDeviceBreakdown :many
+SELECT
+    uc.device,
+    COUNT(*) AS clicks
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id IS NULL
+GROUP BY uc.device
+ORDER BY clicks DESC;
+
+-- name: GetPublicBrowserBreakdown :many
+SELECT
+    uc.browser,
+    COUNT(*) AS clicks
+FROM url_clicks uc
+JOIN urls u ON u.id = uc.url_id
+WHERE u.user_id IS NULL
+GROUP BY uc.browser
+ORDER BY clicks DESC;
+
+-- name: GetRecentPublicClicks :many
+SELECT
+    created_at,
+    code,
+    browser,
+    os,
+    referer
+FROM (
+    SELECT
+        uc.created_at,
+        u.code,
+        uc.browser,
+        uc.os,
+        COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer
+    FROM url_clicks uc
+    JOIN urls u ON u.id = uc.url_id
+    WHERE u.user_id IS NULL
+) t
+ORDER BY created_at DESC
+LIMIT 20;

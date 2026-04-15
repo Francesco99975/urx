@@ -104,6 +104,23 @@ func getUaBrowser(ua string) string {
 	return browser
 }
 
+func getUaDeviceType(ua string) string {
+	parsedUa := useragent.Parse(ua)
+
+	var deviceType string
+	if parsedUa.Mobile {
+		deviceType = "mobile"
+	} else if parsedUa.Tablet {
+		deviceType = "tablet"
+	} else if parsedUa.Desktop {
+		deviceType = "desktop"
+	} else {
+		deviceType = "unknown"
+	}
+
+	return deviceType
+}
+
 func incrementClickBySlug(slug string, ip *netip.Addr, ua *string, rf *string) {
 	log.Infof("Incrementing click for slug %s", slug)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -147,18 +164,20 @@ func incrementClickBySlug(slug string, ip *netip.Addr, ua *string, rf *string) {
 		log.Warnf("failed to parse IP: %s", ip.String())
 	}
 
-	_, err = repo.CreateClick(ctx, repository.CreateClickParams{
+	params := repository.CreateClickParams{
 		UrlID:     url.ID,
 		Ip:        ip,
 		IpHash:    ip_hash,
 		UserAgent: ua,
-		Device:    new(strings.ToLower(parsedUa.Device)),
+		Device:    new(getUaDeviceType(*ua)),
 		Os:        new(strings.ToLower(parsedUa.OS)),
 		Browser:   new(getUaBrowser(*ua)),
 		IsBot:     &parsedUa.Bot,
 		Referer:   rf,
 		Country:   countryCode,
-	})
+	}
+
+	_, err = repo.CreateClick(ctx, params)
 	if err != nil {
 		log.Errorf("failed to create click: %v", err)
 	}
