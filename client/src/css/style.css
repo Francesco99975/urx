@@ -58,14 +58,15 @@
 }
 
 @theme {
-  /* Light mode defaults */
-  --color-std: oklch(98% 0.005 240);     /* Very light neutral background/surface */
-  --color-primary: oklch(52% 0.22 218);   /* Vibrant blue */
-  --color-accent: oklch(72% 0.24 173);    /* Fresh teal/cyan */
-  --color-success: oklch(62% 0.25 155);   /* Clear green */
-  --color-error: oklch(58% 0.28 25);      /* Strong red-orange */
-  --color-warning: oklch(68% 0.25 45);    /* Warm amber */
-  --color-info: oklch(65% 0.20 215);      /* Sky blue */
+  /* Light mode - clean, bright, modern base */
+  --color-std: oklch(97.5% 0.008 260);     /* Soft cool white with subtle blue tint */
+
+  --color-primary: oklch(48% 0.215 265);    /* Deep vibrant indigo-purple */
+  --color-accent: oklch(68% 0.235 195);     /* Bright electric cyan/teal */
+  --color-success: oklch(59% 0.22 145);     /* Fresh emerald green */
+  --color-error: oklch(55% 0.265 18);       /* Bold modern red */
+  --color-warning: oklch(66% 0.23 68);      /* Warm golden orange */
+  --color-info: oklch(62% 0.19 235);        /* Crisp sky blue */
 }
 
 /* Base layer for global and dark mode setup */
@@ -86,14 +87,15 @@
   }
 
  .dark {
-  /* Dark mode overrides */
-  --color-std: oklch(18% 0.02 240);       /* Soft dark neutral (easier on eyes than pure black) */
-  --color-primary: oklch(78% 0.22 218);   /* Lighter, brighter blue for dark bg */
-  --color-accent: oklch(82% 0.24 173);    /* Brighter teal */
-  --color-success: oklch(80% 0.25 155);   /* Bright green */
-  --color-error: oklch(76% 0.28 25);      /* Bright red */
-  --color-warning: oklch(82% 0.25 45);    /* Bright amber */
-  --color-info: oklch(82% 0.20 215);      /* Bright info blue */
+  /* Dark mode overrides - deep, rich, glowing accents */
+  --color-std: oklch(14% 0.015 260);       /* Rich near-black with cool undertone (easier on eyes) */
+
+  --color-primary: oklch(76% 0.215 265);    /* Bright luminous indigo */
+  --color-accent: oklch(79% 0.235 195);     /* Glowing cyan */
+  --color-success: oklch(77% 0.22 145);     /* Vibrant emerald */
+  --color-error: oklch(73% 0.265 18);       /* Bright energetic red */
+  --color-warning: oklch(80% 0.23 68);      /* Luminous amber */
+  --color-info: oklch(78% 0.19 235);        /* Bright sky blue */
 }
   [x-cloak] {
     display: none !important;

@@ -119,7 +119,7 @@ func Stats() echo.HandlerFunc {
 		var topReferrers []views.ReferrerStat
 
 		for _, referrer := range publicGlobalReferrers {
-			percent := referrer.Clicks / publicGlobalClicksAmount * 100
+			percent := float64(referrer.Clicks) / float64(publicGlobalClicksAmount) * 100
 			letter, bg, text := getKnowReferers(referrer.Referer)
 
 			topReferrers = append(topReferrers, views.ReferrerStat{

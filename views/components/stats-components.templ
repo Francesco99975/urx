@@ -9,27 +9,27 @@ templ ActivityCard(time, shortURL, device, referrer string, isDirect bool) {
 			<span class="text-xs text-gray-400">{ time }</span>
 			<span class="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">{ shortURL }</span>
 		</div>
-		<p class="text-sm text-gray-700 mb-1">{ device }</p>
+		<p class="text-sm text-primary mb-1">{ device }</p>
 		if isDirect {
-			<p class="text-xs text-gray-400 italic">Direct</p>
+			<p class="text-xs text-purple-800 italic">Direct</p>
 		} else {
-			<p class="text-xs text-gray-500 truncate">{ referrer }</p>
+			<p class="text-xs text-accent truncate">{ referrer }</p>
 		}
 	</div>
 }
 
 // Desktop table row for activity
 templ ActivityTableRow(time, shortURL, statsURL, device, referrer string, isDirect bool) {
-	<tr class="hover:bg-gray-50 transition-colors">
-		<td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{ time }</td>
+	<tr class="hover:bg-accent/20 transition-colors">
+		<td class="px-6 py-4 text-sm text-primary/70 whitespace-nowrap">{ time }</td>
 		<td class="px-6 py-4">
 			<a href={ templ.SafeURL(statsURL) } class="text-sm font-medium text-primary hover:underline">{ shortURL }</a>
 		</td>
-		<td class="px-6 py-4 text-sm text-gray-700">{ device }</td>
+		<td class="px-6 py-4 text-sm text-primary">{ device }</td>
 		if isDirect {
-			<td class="px-6 py-4 text-sm text-gray-400 italic">Direct</td>
+			<td class="px-6 py-4 text-sm text-purple-800 italic">Direct</td>
 		} else {
-			<td class="px-6 py-4 text-sm text-gray-500 truncate max-w-xs">{ referrer }</td>
+			<td class="px-6 py-4 text-sm text-accent truncate max-w-xs">{ referrer }</td>
 		}
 	</tr>
 }
@@ -48,11 +48,11 @@ templ DeviceItem(name, percent string, percentInt int) {
 }
 
 templ BrowserChip(label string) {
-	<span class="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">{ label }</span>
+	<span class="px-2.5 py-1 bg-primary/10 text-accent text-xs rounded-full">{ label }</span>
 }
 
 templ ProgressBar(percent int, colorClass string) {
-	<div class="w-full bg-gray-100 rounded-full h-1.5 mt-1">
+	<div class="w-full bg-gray-500 rounded-full h-1.5 mt-1">
 		<div class={ "h-1.5 rounded-full", colorClass } style={ fmt.Sprintf("width: %d%%", percent) }></div>
 	</div>
 }
@@ -77,28 +77,28 @@ templ ReferrerBadge(letter, bgClass, textClass string) {
 }
 
 templ StatsCard(value, label, iconBgClass string) {
-	<div class="bg-white rounded-xl border border-gray-100 p-4 md:p-5">
+	<div class="bg-std rounded-xl border border-accent p-4 md:p-5">
 		<div class="flex items-center gap-3 mb-3">
 			<div class={ "w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center", iconBgClass }>
 				{ children... }
 			</div>
 		</div>
-		<p class="text-2xl md:text-3xl font-bold text-gray-900">{ value }</p>
-		<p class="text-xs md:text-sm text-gray-500">{ label }</p>
+		<p class="text-2xl md:text-3xl font-bold text-primary">{ value }</p>
+		<p class="text-xs md:text-sm text-accent">{ label }</p>
 	</div>
 }
 
 templ TopLinkItem(rank int, shortURL, originalURL, statsURL, clicks, trend, trendClass string) {
-	<a href={ templ.SafeURL(statsURL) } class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+	<a href={ templ.SafeURL(statsURL) } class="flex items-center gap-3 p-3 rounded-lg hover:bg-std/70 transition-colors group">
 		<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-sm font-bold text-primary">
 			{ fmt.Sprintf("%d", rank) }
 		</div>
 		<div class="flex-1 min-w-0">
-			<p class="text-sm font-medium text-gray-900 group-hover:text-primary transition-colors">{ shortURL }</p>
-			<p class="text-xs text-gray-400 truncate">{ originalURL }</p>
+			<p class="text-sm font-medium text-primary group-hover:text-accent transition-colors">{ shortURL }</p>
+			<p class="text-xs text-primary/70 truncate">{ originalURL }</p>
 		</div>
 		<div class="text-right shrink-0">
-			<p class="text-sm font-semibold text-gray-900">{ clicks }</p>
+			<p class="text-sm font-semibold text-primary">{ clicks }</p>
 			<p class={ "text-xs", trendClass }>{ trend }</p>
 		</div>
 	</a>

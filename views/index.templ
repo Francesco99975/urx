@@ -20,11 +20,11 @@ templ Index(site config.Site) {
 					</div>
 				</div>
 				<!-- Heading -->
-				<h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight text-balance">
+				<h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-accent mb-4 md:mb-6 leading-tight text-balance">
 					Shorten Your Links,
 					<span class="block sm:inline text-primary">Amplify Your Reach</span>
 				</h1>
-				<p class="text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto mb-8 md:mb-12 text-pretty">
+				<p class="text-base md:text-lg lg:text-xl text-primary/70 max-w-2xl mx-auto mb-8 md:mb-12 text-pretty">
 					Transform long, ugly URLs into clean, memorable links. Track clicks, analyze traffic, and share with confidence.
 				</p>
 				<!-- URL Shortener Form -->
@@ -43,21 +43,21 @@ templ Index(site config.Site) {
 }
 
 templ FeatureCard(icon templ.Component, title string, description string) {
-	<div class="p-5 md:p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+	<div class="p-5 md:p-6 bg-std rounded-2xl border border-accent shadow-sm hover:shadow-md transition-shadow">
 		<div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
 			@icon
 		</div>
-		<h3 class="font-semibold text-gray-900 mb-2">{ title }</h3>
-		<p class="text-sm md:text-base text-gray-600">{ description }</p>
+		<h3 class="font-semibold text-accent mb-2">{ title }</h3>
+		<p class="text-sm md:text-base text-primary">{ description }</p>
 	</div>
 }
 
 templ FeatureCardWide(icon templ.Component, title string, description string) {
-	<div class="p-5 md:p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
+	<div class="p-5 md:p-6 bg-std rounded-2xl border border-accent shadow-sm hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
 		<div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
 			@icon
 		</div>
-		<h3 class="font-semibold text-gray-900 mb-2">{ title }</h3>
-		<p class="text-sm md:text-base text-gray-600">{ description }</p>
+		<h3 class="font-semibold text-accent mb-2">{ title }</h3>
+		<p class="text-sm md:text-base text-primary">{ description }</p>
 	</div>
 }
