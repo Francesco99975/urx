@@ -15,7 +15,7 @@ import (
 const countClicksByURL = `-- name: CountClicksByURL :one
 SELECT COUNT(*) AS total
 FROM url_clicks
-WHERE url_id = $1
+WHERE url_id = $1 AND is_bot = false
 `
 
 func (q *Queries) CountClicksByURL(ctx context.Context, urlID int64) (int64, error) {
@@ -28,7 +28,7 @@ func (q *Queries) CountClicksByURL(ctx context.Context, urlID int64) (int64, err
 const countClicksPerIP = `-- name: CountClicksPerIP :many
 SELECT ip, COUNT(*) AS total
 FROM url_clicks
-WHERE url_id = $1
+WHERE url_id = $1 AND is_bot = false
 GROUP BY ip
 ORDER BY total DESC
 LIMIT $2
@@ -69,7 +69,7 @@ SELECT COUNT(*) AS total
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE uc.url_id = $1
-  AND u.user_id IS NULL
+  AND u.user_id IS NULL AND uc.is_bot = false
 `
 
 func (q *Queries) CountPublicClicksByURL(ctx context.Context, urlID int64) (int64, error) {
@@ -84,7 +84,7 @@ SELECT uc.ip, COUNT(*) AS total
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE uc.url_id = $1
-  AND u.user_id IS NULL
+  AND u.user_id IS NULL AND uc.is_bot = false
 GROUP BY uc.ip
 ORDER BY total DESC
 LIMIT $2
@@ -123,7 +123,7 @@ func (q *Queries) CountPublicClicksPerIP(ctx context.Context, arg CountPublicCli
 const countPublicLinks = `-- name: CountPublicLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id IS NULL
+WHERE user_id IS NULL AND is_bot = false
 `
 
 func (q *Queries) CountPublicLinks(ctx context.Context) (int64, error) {
@@ -136,7 +136,7 @@ func (q *Queries) CountPublicLinks(ctx context.Context) (int64, error) {
 const countUserLinks = `-- name: CountUserLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id = $1
+WHERE user_id = $1 AND is_bot = false
 `
 
 func (q *Queries) CountUserLinks(ctx context.Context, userID pgtype.UUID) (int64, error) {
@@ -212,7 +212,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id = $1
+WHERE u.user_id = $1 AND uc.is_bot = false
 GROUP BY browser
 ORDER BY clicks DESC
 `
@@ -245,7 +245,7 @@ func (q *Queries) GetBrowserBreakdown(ctx context.Context, userID pgtype.UUID) (
 const getClicksByURL = `-- name: GetClicksByURL :many
 SELECT id, ip, user_agent, device, os, browser, referer, country, created_at
 FROM url_clicks
-WHERE url_id = $1
+WHERE url_id = $1 AND is_bot = false
 ORDER BY created_at DESC
 LIMIT $2 OFFSET $3
 `
@@ -304,7 +304,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id = $1
+WHERE u.user_id = $1 AND uc.is_bot = false
 GROUP BY device
 ORDER BY clicks DESC
 `
@@ -340,7 +340,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id IS NULL
+WHERE u.user_id IS NULL AND uc.is_bot = false
 GROUP BY uc.browser
 ORDER BY clicks DESC
 `
@@ -384,7 +384,7 @@ SELECT
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE uc.url_id = $1
-  AND u.user_id IS NULL
+  AND u.user_id IS NULL AND uc.is_bot = false
 ORDER BY uc.created_at DESC
 LIMIT $2 OFFSET $3
 `
@@ -443,7 +443,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id IS NULL
+WHERE u.user_id IS NULL AND uc.is_bot = false
 GROUP BY uc.device
 ORDER BY clicks DESC
 `
@@ -489,7 +489,7 @@ FROM (
         COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id IS NULL
+    WHERE u.user_id IS NULL AND uc.is_bot = false
 ) t
 ORDER BY created_at DESC
 LIMIT 20
@@ -545,7 +545,7 @@ FROM (
         COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
 ) t
 ORDER BY created_at DESC
 LIMIT 20
@@ -595,7 +595,7 @@ FROM (
         COUNT(*)::BIGINT AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id IS NULL
+    WHERE u.user_id IS NULL AND uc.is_bot = false
     GROUP BY 1
 ) t
 ORDER BY clicks DESC
@@ -635,7 +635,7 @@ WITH current_week AS (
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
     WHERE u.user_id IS NULL
-      AND uc.created_at >= now() - interval '7 days'
+      AND uc.created_at >= now() - interval '7 days' AND uc.is_bot = false
     GROUP BY uc.url_id
 ),
 previous_week AS (
@@ -659,7 +659,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id IS NULL
+WHERE u.user_id IS NULL AND u.is_bot = false
 ORDER BY u.clicks DESC
 LIMIT 5
 `
@@ -710,7 +710,7 @@ FROM (
         COUNT(*)::BIGINT AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
     GROUP BY 1
 ) t
 ORDER BY clicks DESC
@@ -749,7 +749,7 @@ WITH current_week AS (
         COUNT(*) AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
       AND uc.created_at >= now() - interval '7 days'
     GROUP BY uc.url_id
 ),
@@ -759,7 +759,7 @@ previous_week AS (
         COUNT(*) AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
       AND uc.created_at >= now() - interval '14 days'
       AND uc.created_at < now() - interval '7 days'
     GROUP BY uc.url_id
@@ -774,7 +774,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id = $1
+WHERE u.user_id = $1 AND u.is_bot = false
 ORDER BY u.clicks DESC
 LIMIT 5
 `
@@ -820,7 +820,7 @@ SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id IS NULL
+    WHERE user_id IS NULL AND is_bot = false
 ) t
 `
 
@@ -836,7 +836,7 @@ SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id IS NULL
-  AND uc.created_at >= now() - interval '7 days'
+  AND uc.created_at >= now() - interval '7 days' AND uc.is_bot = false
 `
 
 func (q *Queries) SumPublicClicksLast7Days(ctx context.Context) (int64, error) {
@@ -851,7 +851,7 @@ SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id IS NULL
-  AND uc.created_at >= date_trunc('day', now())
+  AND uc.created_at >= date_trunc('day', now()) AND uc.is_bot = false
 `
 
 func (q *Queries) SumPublicClicksToday(ctx context.Context) (int64, error) {
@@ -866,7 +866,7 @@ SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id = $1
+    WHERE user_id = $1 AND is_bot = false
 ) t
 `
 
@@ -882,7 +882,7 @@ SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id = $1
-  AND uc.created_at >= now() - interval '7 days'
+  AND uc.created_at >= now() - interval '7 days' AND uc.is_bot = false
 `
 
 func (q *Queries) SumUserClicksLast7Days(ctx context.Context, userID pgtype.UUID) (int64, error) {
@@ -897,7 +897,7 @@ SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id = $1
-  AND uc.created_at >= date_trunc('day', now())
+  AND uc.created_at >= date_trunc('day', now()) AND uc.is_bot = false
 `
 
 func (q *Queries) SumUserClicksToday(ctx context.Context, userID pgtype.UUID) (int64, error) {

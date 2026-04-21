@@ -6,19 +6,19 @@ RETURNING *;
 -- name: CountClicksByURL :one
 SELECT COUNT(*) AS total
 FROM url_clicks
-WHERE url_id = $1;
+WHERE url_id = $1 AND is_bot = false;
 
 -- name: CountUserLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id = $1;
+WHERE user_id = $1 AND is_bot = false;
 
 -- name: SumUserClicks :one
 SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id = $1
+    WHERE user_id = $1 AND is_bot = false
 ) t;
 
 -- name: SumUserClicksToday :one
@@ -26,26 +26,26 @@ SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id = $1
-  AND uc.created_at >= date_trunc('day', now());
+  AND uc.created_at >= date_trunc('day', now()) AND uc.is_bot = false;
 
 -- name: SumUserClicksLast7Days :one
 SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id = $1
-  AND uc.created_at >= now() - interval '7 days';
+  AND uc.created_at >= now() - interval '7 days' AND uc.is_bot = false;
 
 -- name: GetClicksByURL :many
 SELECT id, ip, user_agent, device, os, browser, referer, country, created_at
 FROM url_clicks
-WHERE url_id = $1
+WHERE url_id = $1 AND is_bot = false
 ORDER BY created_at DESC
 LIMIT $2 OFFSET $3;
 
 -- name: CountClicksPerIP :many
 SELECT ip, COUNT(*) AS total
 FROM url_clicks
-WHERE url_id = $1
+WHERE url_id = $1 AND is_bot = false
 GROUP BY ip
 ORDER BY total DESC
 LIMIT $2;
@@ -57,7 +57,7 @@ WITH current_week AS (
         COUNT(*) AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
       AND uc.created_at >= now() - interval '7 days'
     GROUP BY uc.url_id
 ),
@@ -67,7 +67,7 @@ previous_week AS (
         COUNT(*) AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
       AND uc.created_at >= now() - interval '14 days'
       AND uc.created_at < now() - interval '7 days'
     GROUP BY uc.url_id
@@ -82,7 +82,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id = $1
+WHERE u.user_id = $1 AND u.is_bot = false
 ORDER BY u.clicks DESC
 LIMIT 5;
 
@@ -96,7 +96,7 @@ FROM (
         COUNT(*)::BIGINT AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
     GROUP BY 1
 ) t
 ORDER BY clicks DESC
@@ -108,7 +108,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id = $1
+WHERE u.user_id = $1 AND uc.is_bot = false
 GROUP BY device
 ORDER BY clicks DESC;
 
@@ -118,7 +118,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id = $1
+WHERE u.user_id = $1 AND uc.is_bot = false
 GROUP BY browser
 ORDER BY clicks DESC;
 
@@ -138,7 +138,7 @@ FROM (
         COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id = $1
+    WHERE u.user_id = $1 AND uc.is_bot = false
 ) t
 ORDER BY created_at DESC
 LIMIT 20;
@@ -153,19 +153,19 @@ SELECT COUNT(*) AS total
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE uc.url_id = $1
-  AND u.user_id IS NULL;
+  AND u.user_id IS NULL AND uc.is_bot = false;
 
 -- name: CountPublicLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id IS NULL;
+WHERE user_id IS NULL AND is_bot = false;
 
 -- name: SumPublicClicks :one
 SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id IS NULL
+    WHERE user_id IS NULL AND is_bot = false
 ) t;
 
 
@@ -174,14 +174,14 @@ SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id IS NULL
-  AND uc.created_at >= date_trunc('day', now());
+  AND uc.created_at >= date_trunc('day', now()) AND uc.is_bot = false;
 
 -- name: SumPublicClicksLast7Days :one
 SELECT COUNT(*)
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE u.user_id IS NULL
-  AND uc.created_at >= now() - interval '7 days';
+  AND uc.created_at >= now() - interval '7 days' AND uc.is_bot = false;
 
 -- name: GetPublicClicksByURL :many
 SELECT
@@ -197,7 +197,7 @@ SELECT
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE uc.url_id = $1
-  AND u.user_id IS NULL
+  AND u.user_id IS NULL AND uc.is_bot = false
 ORDER BY uc.created_at DESC
 LIMIT $2 OFFSET $3;
 
@@ -206,7 +206,7 @@ SELECT uc.ip, COUNT(*) AS total
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
 WHERE uc.url_id = $1
-  AND u.user_id IS NULL
+  AND u.user_id IS NULL AND uc.is_bot = false
 GROUP BY uc.ip
 ORDER BY total DESC
 LIMIT $2;
@@ -219,7 +219,7 @@ WITH current_week AS (
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
     WHERE u.user_id IS NULL
-      AND uc.created_at >= now() - interval '7 days'
+      AND uc.created_at >= now() - interval '7 days' AND uc.is_bot = false
     GROUP BY uc.url_id
 ),
 previous_week AS (
@@ -243,7 +243,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id IS NULL
+WHERE u.user_id IS NULL AND u.is_bot = false
 ORDER BY u.clicks DESC
 LIMIT 5;
 
@@ -257,7 +257,7 @@ FROM (
         COUNT(*)::BIGINT AS clicks
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id IS NULL
+    WHERE u.user_id IS NULL AND uc.is_bot = false
     GROUP BY 1
 ) t
 ORDER BY clicks DESC
@@ -269,7 +269,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id IS NULL
+WHERE u.user_id IS NULL AND uc.is_bot = false
 GROUP BY uc.device
 ORDER BY clicks DESC;
 
@@ -279,7 +279,7 @@ SELECT
     COUNT(*) AS clicks
 FROM url_clicks uc
 JOIN urls u ON u.id = uc.url_id
-WHERE u.user_id IS NULL
+WHERE u.user_id IS NULL AND uc.is_bot = false
 GROUP BY uc.browser
 ORDER BY clicks DESC;
 
@@ -299,7 +299,7 @@ FROM (
         COALESCE(NULLIF(uc.referer, ''), 'Direct')::TEXT AS referer
     FROM url_clicks uc
     JOIN urls u ON u.id = uc.url_id
-    WHERE u.user_id IS NULL
+    WHERE u.user_id IS NULL AND uc.is_bot = false
 ) t
 ORDER BY created_at DESC
 LIMIT 20;
