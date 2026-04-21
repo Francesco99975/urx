@@ -11,14 +11,14 @@ WHERE url_id = $1 AND is_bot = false;
 -- name: CountUserLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id = $1 AND is_bot = false;
+WHERE user_id = $1;
 
 -- name: SumUserClicks :one
 SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id = $1 AND is_bot = false
+    WHERE user_id = $1
 ) t;
 
 -- name: SumUserClicksToday :one
@@ -82,7 +82,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id = $1 AND u.is_bot = false
+WHERE u.user_id = $1
 ORDER BY u.clicks DESC
 LIMIT 5;
 
@@ -158,14 +158,14 @@ WHERE uc.url_id = $1
 -- name: CountPublicLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id IS NULL AND is_bot = false;
+WHERE user_id IS NULL;
 
 -- name: SumPublicClicks :one
 SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id IS NULL AND is_bot = false
+    WHERE user_id IS NULL
 ) t;
 
 
@@ -243,7 +243,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id IS NULL AND u.is_bot = false
+WHERE u.user_id IS NULL
 ORDER BY u.clicks DESC
 LIMIT 5;
 

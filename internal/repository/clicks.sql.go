@@ -123,7 +123,7 @@ func (q *Queries) CountPublicClicksPerIP(ctx context.Context, arg CountPublicCli
 const countPublicLinks = `-- name: CountPublicLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id IS NULL AND is_bot = false
+WHERE user_id IS NULL
 `
 
 func (q *Queries) CountPublicLinks(ctx context.Context) (int64, error) {
@@ -136,7 +136,7 @@ func (q *Queries) CountPublicLinks(ctx context.Context) (int64, error) {
 const countUserLinks = `-- name: CountUserLinks :one
 SELECT COUNT(*)
 FROM urls
-WHERE user_id = $1 AND is_bot = false
+WHERE user_id = $1
 `
 
 func (q *Queries) CountUserLinks(ctx context.Context, userID pgtype.UUID) (int64, error) {
@@ -659,7 +659,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id IS NULL AND u.is_bot = false
+WHERE u.user_id IS NULL
 ORDER BY u.clicks DESC
 LIMIT 5
 `
@@ -774,7 +774,7 @@ SELECT
 FROM urls u
 LEFT JOIN current_week cw ON cw.url_id = u.id
 LEFT JOIN previous_week pw ON pw.url_id = u.id
-WHERE u.user_id = $1 AND u.is_bot = false
+WHERE u.user_id = $1
 ORDER BY u.clicks DESC
 LIMIT 5
 `
@@ -820,7 +820,7 @@ SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id IS NULL AND is_bot = false
+    WHERE user_id IS NULL
 ) t
 `
 
@@ -866,7 +866,7 @@ SELECT COALESCE(total, 0) AS total_clicks
 FROM (
     SELECT SUM(clicks) AS total
     FROM urls
-    WHERE user_id = $1 AND is_bot = false
+    WHERE user_id = $1
 ) t
 `
 
